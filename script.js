@@ -42,7 +42,7 @@ function animate() {
     const deltaTime = 0.06;
 
     if (burger) {
-        burger.rotation.z += 0.01;
+        burger.rotation.y += 0.01;
         const deltaTime = 1 / 60;
         vibrationEffect(burger, deltaTime, scene);
         updateBackgroundColor(scene, deltaTime);
