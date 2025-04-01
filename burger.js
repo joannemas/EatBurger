@@ -8,6 +8,16 @@ const mtlLoader = new MTLLoader();
 export let burger = null; // Stocke le modèle
 let explosionParticles = [];
 
+let isVibrating = false;
+let vibrationDuration = 1.5;
+let vibrationTime = 0;
+
+let backgroundColorChange = false;
+let changeColorDuration = 0.5;
+let colorTime = 0;
+let initialColor = new THREE.Color(0xF5F5DC);
+let finalColor = new THREE.Color(0x7d3400);
+
 // Charger le burger
 export function loadBurger(scene) {
     console.log("Chargement du burger...");
@@ -132,4 +142,44 @@ export function updateExplosionParticles(deltaTime) {
             explosionParticles.splice(index, 1);
         }
     });
+}
+
+// Vibration du burger
+export function startVibration() {
+    isVibrating = true;
+    vibrationTime = 0;
+}
+
+export function vibrationEffect(burger, deltaTime, scene) {
+    if (isVibrating && burger) {
+        vibrationTime += deltaTime;
+
+        burger.position.x += (Math.random() - 0.5) * 0.05;
+        burger.position.y += (Math.random() - 0.5) * 0.05;
+        burger.position.z += (Math.random() - 0.5) * 0.05;
+
+        if (vibrationTime >= vibrationDuration) {
+            isVibrating = false;
+            explodeBurger(scene);
+        }
+    }
+}
+
+// Changement de couleur de fond
+export function startColorChange() {
+    backgroundColorChange = true;
+    colorTime = 0;
+}
+
+export function updateBackgroundColor(scene, deltaTime) {
+    if (backgroundColorChange) {
+        colorTime += deltaTime;
+        let t = Math.min(colorTime / changeColorDuration, 1);
+
+        const newColor = initialColor.clone().lerp(finalColor, t);
+        scene.background.set(newColor);
+        if (t === 1) {
+            backgroundColorChange = false;
+        }
+    }
 }

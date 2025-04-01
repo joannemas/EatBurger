@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { loadBurger, explodeBurger, updateExplosionParticles } from './burger.js';
+import { loadBurger, explodeBurger, updateExplosionParticles, vibrationEffect, startVibration, startColorChange, updateBackgroundColor } from './burger.js';
 import { burger } from './burger.js';
 
 const scene = new THREE.Scene();
@@ -27,7 +27,9 @@ loadBurger(scene);
 let hasExploded = false;
 document.addEventListener('keydown', (event) => {
     if (event.key === 'e' && !hasExploded) {
-        explodeBurger(scene);
+        //explodeBurger(scene);
+        startVibration();
+        startColorChange();
         hasExploded = true;
         document.getElementsByClassName('eat-button')[0].style.display = 'none';
     }
@@ -41,6 +43,9 @@ function animate() {
 
     if (burger) {
         burger.rotation.z += 0.01;
+        const deltaTime = 1 / 60;
+        vibrationEffect(burger, deltaTime, scene);
+        updateBackgroundColor(scene, deltaTime);
     }
 
     updateExplosionParticles(deltaTime);
