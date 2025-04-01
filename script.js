@@ -48,7 +48,7 @@ function animate() {
         updateBackgroundColor(scene, deltaTime);
     }
 
-    updateExplosionParticles(deltaTime);
+    updateExplosionParticles(scene, deltaTime);
     renderer.render(scene, camera);
 }
 animate();

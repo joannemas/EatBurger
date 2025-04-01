@@ -60,6 +60,18 @@ let finalColor = new THREE.Color(0x7d3400);
 //     });
 // }
 
+const burgerParts = {
+    pain: [],
+    steak: [],
+    fromage: [],
+    salade: [],
+    sesame: [],
+    ketchup: [],
+    mayonnaise: [],
+    tomate: [],
+    cornichon: []
+};
+
 export function loadBurger(scene) {
     console.log("Chargement du burger...");
 
@@ -71,8 +83,7 @@ export function loadBurger(scene) {
             
             const obj = gltf.scene;
             obj.scale.set(0.012, 0.012, 0.012);
-            obj.position.set(0, 0.3, 0);
-            obj.rotation.set(0, 0, 0);
+            //obj.position.set(0, 0.3, 0);
 
             scene.add(obj);
             burger = obj;
@@ -84,17 +95,7 @@ export function loadBurger(scene) {
                 }
             });
 
-            const burgerParts = {
-                pain: [],
-                steak: [],
-                fromage: [],
-                salade: [],
-                sesame: [],
-                ketchup: [],
-                mayonnaise: [],
-                tomate: [],
-                cornichon: []
-            };
+            Object.keys(burgerParts).forEach(key => burgerParts[key] = []);
             
             obj.traverse((child) => {
                 if (child.isMesh) {
@@ -170,41 +171,28 @@ export function explodeBurger(scene) {
     }
 
     console.log("Explosion du burger !");
-    
-    burger.traverse((child) => {
-        if (child.isMesh) {
-            const geometry = child.geometry;
-            const vertices = [];
-            for (let i = 0; i < geometry.attributes.position.count; i++) {
-                const vertex = new THREE.Vector3().fromBufferAttribute(geometry.attributes.position, i);
-                vertices.push(vertex);
-            }
 
-            const limitedVertices = vertices.slice(0, 50);
-            const colors = [0xff0000, 0x00ff00, 0xFFA500, 0xFFA500, 0xffff00, 0xA52A2A, 0xA52A2A, 0xA52A2A];
+    Object.values(burgerParts).forEach(partArray => {
+        partArray.forEach(originalPart => {
+            const clone = originalPart.clone();
+            scene.add(clone);
 
-            limitedVertices.forEach(vertex => {
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                const explosionMaterial = new THREE.MeshPhongMaterial({ color: randomColor, emissive: randomColor, shininess: 100 });
-                const smallCubeGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-                const smallCube = new THREE.Mesh(smallCubeGeometry, explosionMaterial);
-                
-                scene.add(smallCube);
+            clone.scale.set(0.3, 0.3, 0.3);
+            clone.position.copy(originalPart.position);
 
-                // Vitesse
-                const velocity = new THREE.Vector3(
-                    (Math.random() - 0.5) * 2,
-                    (Math.random() - 0.5) * 2,
-                    (Math.random() - 0.5) * 2
-                );
+            const velocity = new THREE.Vector3(
+                (Math.random() - 0.5) * 3,
+                (Math.random() - 0.5) * 3,
+                (Math.random() - 0.5) * 3
+            );
 
-                explosionParticles.push({
-                    particle: smallCube,
-                    velocity: velocity,
-                    lifetime: Math.random() * 3 + 1  // Temps avant disparition
-                });
+            explosionParticles.push({
+                particle: clone,
+                velocity: velocity,
+                lifetime: 2,
+                explodedTime: Date.now()
             });
-        }
+        });
     });
 
     scene.remove(burger);
@@ -213,18 +201,20 @@ export function explodeBurger(scene) {
 
 
 // Animation des particules de l'explosion
-export function updateExplosionParticles(deltaTime) {
-    explosionParticles.forEach((particleData, index) => {
-        particleData.particle.position.addScaledVector(particleData.velocity, deltaTime);
-        particleData.lifetime -= deltaTime;
+export function updateExplosionParticles(scene, deltaTime) {
+    for (let i = explosionParticles.length - 1; i >= 0; i--) {
+        const particleData = explosionParticles[i];
 
-        if (particleData.lifetime <= 0) {
+        particleData.particle.position.addScaledVector(particleData.velocity, deltaTime);
+
+        const elapsedTime = (Date.now() - particleData.explodedTime) / 1000;
+        if (elapsedTime > particleData.lifetime) {
+            scene.remove(particleData.particle);
             particleData.particle.geometry.dispose();
             particleData.particle.material.dispose();
-            particleData.particle.parent.remove(particleData.particle);
-            explosionParticles.splice(index, 1);
+            explosionParticles.splice(i, 1);
         }
-    });
+    }
 }
 
 // Vibration du burger
