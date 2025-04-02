@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { addSelectableParts } from './selection.js';
 
 const textureLoader = new THREE.TextureLoader();
 const mtlLoader = new MTLLoader();
@@ -60,7 +61,7 @@ let finalColor = new THREE.Color(0x7d3400);
 //     });
 // }
 
-const burgerParts = {
+export const burgerParts = {
     pain: [],
     steak: [],
     fromage: [],
@@ -86,6 +87,7 @@ export function loadBurger(scene) {
             //obj.position.set(0, 0.3, 0);
 
             scene.add(obj);
+            addSelectableParts(obj);
             burger = obj;
             console.log("Burger ajouté !");
             const elementsBurger = {};

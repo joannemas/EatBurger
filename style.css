@@ -17,3 +17,17 @@ body {
     left: 40%;
     bottom: 40px;
 }
+
+#infoBox {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    padding: 40px;
+    border-radius: 5px; 
+    display: none;
+    text-align: right;
+    font-size: 40px;
+    font-weight: 900;
+    color: #681717c0;
+    font-family: 'Concert One', sans-serif;
+}

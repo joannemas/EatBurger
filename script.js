@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { loadBurger, explodeBurger, updateExplosionParticles, vibrationEffect, startVibration, startColorChange, updateBackgroundColor } from './burger.js';
 import { burger } from './burger.js';
+import { updateHover } from './selection.js';
 
-const scene = new THREE.Scene();
+export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xF5F5DC);
 
 // Caméra
@@ -20,6 +21,7 @@ scene.add(light, new THREE.AmbientLight(0x404040));
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.update();
 
 // Charger le burger
 loadBurger(scene);
@@ -27,7 +29,6 @@ loadBurger(scene);
 let hasExploded = false;
 document.addEventListener('keydown', (event) => {
     if (event.key === 'e' && !hasExploded) {
-        //explodeBurger(scene);
         startVibration();
         startColorChange();
         hasExploded = true;
@@ -36,20 +37,28 @@ document.addEventListener('keydown', (event) => {
 });
 
 // Animation
-function animate() {
+let lastTime = 0;
+function animate(time) {
     requestAnimationFrame(animate);
-    controls.update();
-    const deltaTime = 0.06;
 
+    const deltaTime = time - lastTime;
+    lastTime = time;
+    
+    if (deltaTime < 1000 / 60) return;
+
+    controls.update();
+    updateBackgroundColor(scene, deltaTime / 1000);
     if (burger) {
         burger.rotation.y += 0.01;
-        const deltaTime = 1 / 60;
-        vibrationEffect(burger, deltaTime, scene);
-        updateBackgroundColor(scene, deltaTime);
+        vibrationEffect(burger, deltaTime / 1000, scene);
     }
 
-    updateExplosionParticles(scene, deltaTime);
+    if (hasExploded) {
+        updateExplosionParticles(scene, deltaTime / 100);
+    }
+
     renderer.render(scene, camera);
+    updateHover(scene, camera);
 }
 animate();
 
