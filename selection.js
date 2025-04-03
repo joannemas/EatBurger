@@ -10,6 +10,8 @@ import gsap from 'gsap';
 
 const selectableParts = {};
 
+export let isSelected = false;
+
 selectableParts.painHaut = null;
 selectableParts.painBas = null;
 selectableParts.steak = null;
@@ -65,6 +67,12 @@ window.addEventListener('click', () => {
 });
 
 function selectIngredient(part) {
+
+    isSelected = true;
+    console.log(isSelected);
+    updateButtonVisibility();
+
+    
     if (selectedPart) {
         resetIngredient(selectedPart);
     }
@@ -116,6 +124,7 @@ function resetIngredient(part) {
     }});
 
     selectedPart = null;
+    isSelected = false;
 }
 
 
@@ -180,6 +189,9 @@ function resetScene(scene, burgerGroup) {
         burgerGroup.add(selectedPart);
 
         selectedPart = null;
+        isSelected = false;
+        console.log(isSelected);
+        updateButtonVisibility();
     }
 
     gsap.to(burgerGroup.position, { x: 0, duration: 1 });
@@ -187,4 +199,11 @@ function resetScene(scene, burgerGroup) {
     gsap.to("#infoBox", { opacity: 0, duration: 0.5, onComplete: () => {
         document.getElementById("infoBox").style.display = "none";
     }});
+}
+
+export function updateButtonVisibility() {
+    const explosionButton = document.getElementsByClassName('eat-button')[0];
+    if (explosionButton ) {
+        explosionButton.style.display = isSelected ? "none" : "block";
+    }
 }

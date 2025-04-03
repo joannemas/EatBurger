@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { loadBurger, explodeBurger, updateExplosionParticles, vibrationEffect, startVibration, startColorChange, updateBackgroundColor } from './burger.js';
 import { burger } from './burger.js';
 import { updateHover } from './selection.js';
+import { isSelected } from './selection.js';
 
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xF5F5DC);
@@ -29,12 +30,22 @@ loadBurger(scene);
 let hasExploded = false;
 document.addEventListener('keydown', (event) => {
     if (event.key === 'e' && !hasExploded) {
+        if (isSelected) {
+            console.log("L'explosion est bloquée par la sélection");
+            return;
+        }
+        
         startVibration();
         startColorChange();
         hasExploded = true;
-        document.getElementsByClassName('eat-button')[0].style.display = 'none';
+
+        const eatButton = document.getElementsByClassName('eat-button')[0];
+        if (eatButton) {
+            eatButton.style.display = 'none';
+        }
     }
 });
+
 
 // Animation
 let lastTime = 0;

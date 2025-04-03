@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { addSelectableParts } from './selection.js';
+import { addSelectableParts, isSelected, updateButtonVisibility } from './selection.js';
 
 const textureLoader = new THREE.TextureLoader();
 const mtlLoader = new MTLLoader();
@@ -172,6 +172,10 @@ export function explodeBurger(scene) {
         return;
     }
 
+    if (isSelected == true) {
+        return;
+    }
+
     console.log("Explosion du burger !");
 
     Object.values(burgerParts).forEach(partArray => {
@@ -221,6 +225,10 @@ export function updateExplosionParticles(scene, deltaTime) {
 
 // Vibration du burger
 export function startVibration() {
+    if (isSelected == true) {
+        return;
+    }
+
     isVibrating = true;
     vibrationTime = 0;
 }
@@ -242,6 +250,9 @@ export function vibrationEffect(burger, deltaTime, scene) {
 
 // Changement de couleur de fond
 export function startColorChange() {
+    if (isSelected == true) {
+        return;
+    }
     backgroundColorChange = true;
     colorTime = 0;
 }
