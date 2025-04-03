@@ -62,9 +62,15 @@ window.addEventListener('click', () => {
         console.log(hoveredPart);
     }
     else {
-        resetScene(scene, burgerGroup); 
+        resetScene(scene, burgerGroup);
+        buttonContainer.style.display = "none";
+
     }
 });
+
+let originalPart = null;
+const buttonContainer = document.getElementById("choice-buttons");
+
 
 function selectIngredient(part) {
 
@@ -76,6 +82,8 @@ function selectIngredient(part) {
     if (selectedPart) {
         resetIngredient(selectedPart);
     }
+
+    originalPart = part;
 
     // Cloner l'ingrédient sélectionné
     const clone = part.clone();
@@ -109,6 +117,8 @@ function selectIngredient(part) {
     });
 
     showIngredientInfo(part.name);
+    showChoiceButtons();
+
 }
 
 
@@ -205,5 +215,35 @@ export function updateButtonVisibility() {
     const explosionButton = document.getElementsByClassName('eat-button')[0];
     if (explosionButton ) {
         explosionButton.style.display = isSelected ? "none" : "block";
+    }
+}
+
+function showChoiceButtons() {
+    const buttonContainer = document.getElementById("choice-buttons");
+
+    if (!buttonContainer) return;
+
+    buttonContainer.innerHTML = `
+        <button id="keep-btn">Keep</button>
+        <button id="remove-btn">Remove</button>
+    `;
+
+    document.getElementById("keep-btn").addEventListener("click", () => {
+        hideChoiceButtons();
+    });
+
+    document.getElementById("remove-btn").addEventListener("click", () => {
+        if (originalPart) {
+            originalPart.visible = false;
+        }
+        hideChoiceButtons();
+    });
+
+    buttonContainer.style.display = "block";
+}
+
+function hideChoiceButtons() {
+    if (buttonContainer) {
+        buttonContainer.style.display = "none";
     }
 }

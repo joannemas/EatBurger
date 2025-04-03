@@ -30,4 +30,51 @@ body {
     font-weight: 900;
     color: #681717c0;
     font-family: 'Concert One', sans-serif;
+    width: 350px;
+}
+
+.title {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    padding: 40px;
+    border-radius: 5px; 
+    font-size: 40px;
+    font-weight: 900;
+    color: #681717c0;
+    font-family: 'Concert One', sans-serif;
+}
+
+#choice-buttons {
+    position: absolute;
+    top: 70%;
+    left: 20px;
+    padding: 40px;
+    border-radius: 5px; 
+    font-size: 40px;
+    color: #ffffff;
+}
+
+#keep-btn, #remove-btn {
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 3px solid #fff;
+    font-size: 25px;
+}
+
+#keep-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+#remove-btn {
+    background-color: #f44336;
+    color: white;
+}
+#keep-btn:hover {
+    background-color: #45a049;
+    cursor: pointer;
+}
+#remove-btn:hover {
+    background-color: #e53935;
+    cursor: pointer;
 }
