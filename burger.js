@@ -272,13 +272,13 @@ export function startVibration() {
     if (isSelected == true) {
         return;
     }
-
     isVibrating = true;
     vibrationTime = 0;
 }
 
 export function vibrationEffect(burger, deltaTime, scene) {
     if (isVibrating && burger) {
+        scene.remove(plate);
         const title = document.getElementsByClassName('title')[0];
         title.style.display = 'none';
 
