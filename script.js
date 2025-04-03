@@ -114,7 +114,7 @@ function animate(time) {
 
     const deltaTime = time - lastTime;
     lastTime = time;
-    
+
     if (deltaTime < 1000 / 60) return;
 
     controls.update();
@@ -142,3 +142,22 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// Shader de chaleur
+export function applyHeatShader(ingredient) {
+    const heatMaterial = new THREE.ShaderMaterial({
+        uniforms: heatShader.uniforms,
+        vertexShader: heatShader.vertexShader,
+        fragmentShader: heatShader.fragmentShader
+    });
+
+    ingredient.material = heatMaterial;
+    ingredient.material.needsUpdate = true;
+
+    function animateHeat() {
+        heatMaterial.uniforms.time.value += 0.1;
+        requestAnimationFrame(animateHeat);
+    }
+
+    animateHeat();
+}

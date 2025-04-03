@@ -141,6 +141,10 @@ export function loadBurger(scene) {
             });
 
             floatEffect();
+
+            const light = new THREE.PointLight(0xffff, 4, 0);
+            light.position.set(0, 0, 0);
+            scene.add(light);
         },
         undefined,
         (error) => console.error("Erreur GLB:", error)

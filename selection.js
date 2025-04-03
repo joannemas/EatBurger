@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { scene } from './script';
+import { applyHeatShader, scene } from './script';
 
 // Raycaster et souris
 const raycaster = new THREE.Raycaster();
@@ -88,6 +88,56 @@ function selectIngredient(part) {
     // Cloner l'ingrédient sélectionné
     const clone = part.clone();
     scene.add(clone);
+
+    // shader de chaleur
+    const clonedMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            "time": { value: 0.0 },
+            "baseColor": { value: part.material.color }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            varying float vDistortion;
+            uniform float time;
+    
+            void main() {
+                vUv = uv;
+                vDistortion = sin(uv.x * 10.0 + time * 6.0) * 0.1;
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                mvPosition.z += vDistortion;
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            uniform vec3 baseColor;
+            varying vec2 vUv;
+            varying float vDistortion;
+    
+            void main() {
+                vec3 heatColor = mix(vec3(1.0, 0.0, 0.0), vec3(1.0, 1.0, 0.0), vDistortion);
+                vec3 finalColor = mix(baseColor.rgb, heatColor, 0.3);
+    
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `
+    });
+    
+    clone.material = clonedMaterial;
+    scene.add(clone);
+    
+    function animateHeat() {
+        clonedMaterial.uniforms.time.value += 0.02;
+        requestAnimationFrame(animateHeat);
+    }
+    animateHeat();
+    
+
+    if (part.material.map) {
+        clonedMaterial.uniforms.tDiffuse.value = part.material.map;
+    }
+
+    clone.material = clonedMaterial;
 
     clone.position.copy(part.getWorldPosition(new THREE.Vector3())); // Même position que l'original
     clone.scale.copy(part.scale); // Même échelle que l'original
