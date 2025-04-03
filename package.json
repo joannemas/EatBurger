@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "script.js",
   "scripts": {
-    "dev": "npx vite",                  
-    "build": "npx vite build",          
-    "serve": "npx vite preview",        
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "serve": "npx vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "gsap": "^3.12.7",
     "three": "^0.175.0"
   },
   "devDependencies": {
