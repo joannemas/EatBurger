@@ -5,6 +5,11 @@ import { burger } from './burger.js';
 import { updateHover } from './selection.js';
 import { isSelected } from './selection.js';
 
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xF5F5DC);
 
@@ -16,13 +21,68 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const light = new THREE.DirectionalLight(0xffffff, 4);
+const light = new THREE.DirectionalLight(0xffffff, 3);
 light.position.set(2, 5, 5);
-scene.add(light, new THREE.AmbientLight(0x404040));
+scene.add(light, new THREE.AmbientLight(0xF5F5DC));
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.update();
+
+export let distortionPass;
+const composer = new EffectComposer(renderer);
+composer.setSize(window.innerWidth, window.innerHeight);
+
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+
+function initPostProcessing() {
+    const renderPass = new RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    // Bloom effect
+    const bloomPass = new UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        0.2, 0.2, 0.15
+    );
+    composer.addPass(bloomPass);
+
+    // Shader de distorsion
+    const distortionShader = {
+        uniforms: {
+            "tDiffuse": { value: null },
+            "time": { value: 0.0 },
+            "intensity": { value: 0.0 }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D tDiffuse;
+            uniform float time;
+            uniform float intensity;
+            varying vec2 vUv;
+
+            void main() {
+                vec2 uv = vUv;
+                float distortion = sin(uv.y * 10.0 + time * 5.0) * 0.01 * intensity;
+                uv.x += distortion;
+                vec4 color = texture2D(tDiffuse, uv);
+                gl_FragColor = color;
+            }
+        `
+    };
+
+    distortionPass = new ShaderPass(distortionShader);
+    composer.addPass(distortionPass);
+}
+
+initPostProcessing();
 
 // Charger le burger
 loadBurger(scene);
@@ -34,7 +94,7 @@ document.addEventListener('keydown', (event) => {
             console.log("L'explosion est bloquée par la sélection");
             return;
         }
-        
+
         startVibration();
         startColorChange();
         hasExploded = true;
@@ -66,9 +126,12 @@ function animate(time) {
 
     if (hasExploded) {
         updateExplosionParticles(scene, deltaTime / 100);
+        if (distortionPass) {
+            distortionPass.uniforms.time.value += deltaTime / 1000;
+        }
     }
 
-    renderer.render(scene, camera);
+    composer.render();
     updateHover(scene, camera);
 }
 animate();

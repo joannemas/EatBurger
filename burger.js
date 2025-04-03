@@ -3,6 +3,9 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { addSelectableParts, isSelected, updateButtonVisibility } from './selection.js';
+import { distortionPass } from './script.js';
+import { gsap } from 'gsap';
+
 
 const textureLoader = new THREE.TextureLoader();
 const mtlLoader = new MTLLoader();
@@ -178,6 +181,16 @@ export function explodeBurger(scene) {
 
     console.log("Explosion du burger !");
 
+    if (distortionPass) {
+        distortionPass.uniforms.intensity.value = 5.0;
+
+        gsap.to(distortionPass.uniforms.intensity, {
+            value: 0.0,
+            duration: 1.5,
+            ease: "power2.out"
+        });
+    }
+
     Object.values(burgerParts).forEach(partArray => {
         partArray.forEach(originalPart => {
             const clone = originalPart.clone();
@@ -235,6 +248,9 @@ export function startVibration() {
 
 export function vibrationEffect(burger, deltaTime, scene) {
     if (isVibrating && burger) {
+        const title = document.getElementsByClassName('title')[0];
+        title.style.display = 'none';
+
         vibrationTime += deltaTime;
 
         burger.position.x += (Math.random() - 0.5) * 0.05;
