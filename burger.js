@@ -11,6 +11,7 @@ const textureLoader = new THREE.TextureLoader();
 const mtlLoader = new MTLLoader();
 
 export let burger = null; // Stocke le modèle
+export let plate = null; // Stocke le modèle de l'assiette
 let explosionParticles = [];
 
 let isVibrating = false;
@@ -149,6 +150,32 @@ export function loadBurger(scene) {
         undefined,
         (error) => console.error("Erreur GLB:", error)
     );
+
+    loader.load('assets/plate/plate.glb', function (gltf) {
+        plate = gltf.scene;
+        
+        plate.traverse((child) => {
+            if (child.isMesh) {
+                child.material = new THREE.MeshPhysicalMaterial({
+                    color: 0xbbbbbb,  
+                    roughness: 0.3,   
+                    metalness: 0.0,   
+                    clearcoat: 1.0,
+                    clearcoatRoughness: 0.1 
+                });
+            }
+        });
+
+        plate.scale.set(5, 5, 5);
+        plate.position.set(0, -3, 0);     
+        plate.rotation.z = Math.PI * 0.05;   
+        scene.add(plate);
+
+        console.log("Assiette ajoutée !");
+    
+    }, undefined, function (error) {
+        console.error('Erreur lors du chargement de plate.glb :', error);
+    });
 }
 
 // Effet de flottement

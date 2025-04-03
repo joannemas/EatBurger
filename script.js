@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { loadBurger, explodeBurger, updateExplosionParticles, vibrationEffect, startVibration, startColorChange, updateBackgroundColor } from './burger.js';
-import { burger } from './burger.js';
+import { burger, plate } from './burger.js';
 import { updateHover } from './selection.js';
 import { isSelected } from './selection.js';
 
@@ -15,7 +15,8 @@ scene.background = new THREE.Color(0xF5F5DC);
 
 // Caméra
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1, 5);
+camera.position.set(0, 2, 6);
+camera.lookAt(0, 1, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -129,6 +130,10 @@ function animate(time) {
         if (distortionPass) {
             distortionPass.uniforms.time.value += deltaTime / 1000;
         }
+    }
+
+    if (plate) {
+        plate.rotation.y += 0.05;
     }
 
     composer.render();
