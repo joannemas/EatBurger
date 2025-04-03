@@ -1,0 +1,10 @@
+node_modules
+dist
+.cache/
+
+/.vite/
+.vscode
+
+.env
+.env.local
+.env.*.local
